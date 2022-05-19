@@ -7,6 +7,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -23,6 +25,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class WorkbookReader implements AutoCloseable {
+	
+	private static final Logger LOGGER = LogManager.getLogger(WorkbookReader.class);
 
 	private int rowCount = -1;
 	private BufferedSheetReader sheetParser;
@@ -41,6 +45,8 @@ public class WorkbookReader implements AutoCloseable {
 	public WorkbookReader(String filename) 
 			throws IOException, OpenXML4JException, SAXException {
 
+		LOGGER.info("Filename of the workbook file " + filename);
+		
 		// open the workbook in open xml format
 		pkg = OPCPackage.open(filename, PackageAccess.READ);
 
@@ -58,6 +64,7 @@ public class WorkbookReader implements AutoCloseable {
 			parser = factory.newSAXParser();
 			parser.parse(new InputSource(wbStream), workbookHandler);
 		} catch (ParserConfigurationException | SAXException e) {
+			LOGGER.error("There are errors on parsing stream ", e);
 			e.printStackTrace();
 		}
 
@@ -90,7 +97,7 @@ public class WorkbookReader implements AutoCloseable {
 
 		// if not sheet id is retrieved => exception
 		if (sheetRId.equals("") || sheetRId == null) {
-			System.err.println("No sheet named " + name + " was found!");
+			LOGGER.error("No sheet named " + name + " was found!");
 			return;
 		}
 
@@ -157,7 +164,8 @@ public class WorkbookReader implements AutoCloseable {
 
 		if (sheetParser == null)
 			return null;
-
+		
+		LOGGER.debug("Next batch result set " + sheetParser.next());
 		return sheetParser.next();
 	}
 
