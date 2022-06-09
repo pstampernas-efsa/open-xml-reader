@@ -413,6 +413,8 @@ public class BufferedSheetReader {
 			Integer.parseInt(value);
 			isInt = true;
 		} catch (NumberFormatException e) {
+			LOGGER.error("Value " +  value + " can not be converted to Integer" , e);
+			e.printStackTrace();
 			isInt = false;
 		}
 		
