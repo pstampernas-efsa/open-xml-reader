@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 /**
@@ -35,6 +37,8 @@ import org.apache.poi.ss.usermodel.DateUtil;
  * 
  */
 public class ResultDataSet implements ResultSet, Cloneable {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ResultDataSet.class);
 
 	HashMap< String, String > headers;
 	ArrayList< HashMap< String, String >> dataRecords;
@@ -136,6 +140,7 @@ public class ResultDataSet implements ResultSet, Cloneable {
 		for (String value : headers.values())
 			printHeaders = printHeaders + "h" + value + ";";
 		
+		LOGGER.info("Headers: ", printHeaders);
 		System.out.println(printHeaders);
 		
 		for (HashMap<String,String> map : dataRecords) {
@@ -224,7 +229,7 @@ public class ResultDataSet implements ResultSet, Cloneable {
 		// if no value found, return the default
 		if (value == null)
 			return "";
-		
+	
 		return value;
 	}
 	
@@ -359,13 +364,14 @@ public class ResultDataSet implements ResultSet, Cloneable {
 				ts = new Timestamp(date);
 		}
 		catch (NumberFormatException e) {
-			
+			LOGGER.error("Problem on converting value " +  value);
 			// it was a string! => format as simple string
 			try {
 				
 				ts = getTimestampFromString(value, "yyyy/MM/dd");
 				
 			} catch (ParseException e1) {
+				LOGGER.error("Problem on parsing value " +  value);
 				e1.printStackTrace();
 			}
 		}
